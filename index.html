@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SAF Alumni Database</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f0f4f8;
+      --surface: #ffffff;
+      --primary: #1a3a6b;
+      --primary-light: #e8eef8;
+      --primary-dark: #0f2347;
+      --accent: #f4a500;
+      --text: #1a2332;
+      --muted: #5a6a7a;
+      --border: #dde3ea;
+      --card-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      --radius: 12px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    header {
+      background: linear-gradient(135deg, #0f2347 0%, #1a3a6b 55%, #1e4d8c 100%);
+      color: #fff;
+      text-align: center;
+      padding: 52px 24px 48px;
+    }
+
+    .org-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-bottom: 6px;
+    }
+
+    .org-sub {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      opacity: 0.55;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-size: clamp(28px, 5vw, 54px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 8px;
+    }
+
+    h1 span { color: var(--accent); }
+
+    .member-count {
+      font-size: 15px;
+      opacity: 0.8;
+      margin-bottom: 32px;
+      font-weight: 400;
+    }
+
+    .member-count strong {
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    /* SEARCH BOX */
+    .search-box {
+      background: #fff;
+      border-radius: var(--radius);
+      padding: 22px;
+      max-width: 960px;
+      margin: 0 auto;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.22);
+    }
+
+    .search-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    @media (max-width: 860px) { .search-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 500px) { .search-grid { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 360px) { .search-grid { grid-template-columns: 1fr; } }
+
+    .field-label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text);
+      background: #f8fafb;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+      border-color: var(--primary);
+      background: #fff;
+    }
+
+    .btn-search {
+      width: 100%;
+      padding: 12px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      letter-spacing: 0.3px;
+      transition: background 0.2s;
+    }
+
+    .btn-search:hover { background: var(--primary-dark); }
+
+    .add-link {
+      display: inline-block;
+      margin-top: 16px;
+      color: rgba(255,255,255,0.8);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-family: inherit;
+      letter-spacing: 0.3px;
+      transition: color 0.2s;
+    }
+
+    .add-link:hover { color: var(--accent); }
+
+    /* MAIN */
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 44px 20px 64px;
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    /* CARDS */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 18px;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+      border: 1.5px solid transparent;
+      transition: box-shadow 0.2s, border-color 0.2s, transform 0.15s;
+    }
+
+    .card:hover {
+      box-shadow: 0 8px 28px rgba(0,0,0,0.13);
+      border-color: var(--primary-light);
+      transform: translateY(-2px);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      margin-bottom: 13px;
+    }
+
+    .avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .card-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.25;
+    }
+
+    .card-batch {
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 500;
+      margin-top: 2px;
+    }
+
+    .blood-badge {
+      margin-left: auto;
+      background: #fff0f0;
+      color: #c0392b;
+      border: 1px solid #f5c6c6;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      flex-shrink: 0;
+    }
+
+    .card-role {
+      font-size: 13px;
+      color: var(--primary);
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .card-org {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .card-mobile {
+      font-size: 12px;
+      color: #888;
+    }
+
+    .card-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 13px 0;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .btn-tag {
+      padding: 5px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      background: #f8fafb;
+      cursor: pointer;
+      font-family: inherit;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .btn-tag:hover {
+      border-color: var(--primary);
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+
+    .fb-btn  { border-color: #1877f2 !important; color: #1877f2 !important; }
+    .fb-btn:hover  { background: #e7f0fd !important; }
+    .li-btn  { border-color: #0a66c2 !important; color: #0a66c2 !important; }
+    .li-btn:hover  { background: #e8f0fb !important; }
+
+    /* LOADING */
+    .loading {
+      text-align: center;
+      padding: 56px;
+      color: var(--muted);
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 38px;
+      height: 38px;
+      border: 3px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 14px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .no-results {
+      text-align: center;
+      padding: 56px 20px;
+      color: var(--muted);
+      font-size: 15px;
+      display: none;
+    }
+
+    /* MODAL */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5,15,35,0.6);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .overlay.open { display: flex; }
+
+    .modal {
+      background: #fff;
+      border-radius: 16px;
+      padding: 30px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 92vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.25);
+      position: relative;
+      animation: popIn 0.22s ease;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.95) translateY(12px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 4px;
+    }
+
+    .modal-subtitle {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 22px;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 18px; right: 20px;
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: var(--muted);
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .close-btn:hover { color: var(--text); }
+
+    .form-row { margin-bottom: 14px; }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      background: #f8fafb;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-input:focus, .form-select:focus {
+      border-color: var(--primary);
+      background: #fff;
+    }
+
+    .form-two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 440px) { .form-two { grid-template-columns: 1fr; } }
+
+    .btn-submit {
+      width: 100%;
+      padding: 13px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 8px;
+      letter-spacing: 0.3px;
+      transition: background 0.2s;
+    }
+
+    .btn-submit:hover { background: var(--primary-dark); }
+    .btn-submit:disabled { background: #aaa; cursor: not-allowed; }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 28px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--primary-dark);
+      color: #fff;
+      padding: 12px 28px;
+      border-radius: 40px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      z-index: 2000;
+      transition: transform 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 24px 20px;
+      font-size: 13px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <p class="org-label">University of Dhaka</p>
+  <p class="org-sub">Alumni Database</p>
+  <h1><span>SAF</span> — SURJASEN ALLIANCE OF FINANCE</h1>
+  <p class="member-count"><strong id="total-count">0</strong>+ alumni and counting</p>
+
+  <div class="search-box">
+    <div class="search-grid">
+      <div>
+        <label class="field-label">Name</label>
+        <input class="search-input" id="s-name" placeholder="e.g. Muhammad Musa" type="text" oninput="filterCards()"/>
+      </div>
+      <div>
+        <label class="field-label">Batch</label>
+        <input class="search-input" id="s-batch" placeholder="e.g. 30" type="text" oninput="filterCards()"/>
+      </div>
+      <div>
+        <label class="field-label">Role</label>
+        <input class="search-input" id="s-role" placeholder="e.g. Analyst" type="text" oninput="filterCards()"/>
+      </div>
+      <div>
+        <label class="field-label">Organization</label>
+        <input class="search-input" id="s-org" placeholder="e.g. J.P. Morgan" type="text" oninput="filterCards()"/>
+      </div>
+      <div>
+        <label class="field-label">Blood Group</label>
+        <input class="search-input" id="s-blood" placeholder="e.g. O+" type="text" oninput="filterCards()"/>
+      </div>
+      <div>
+        <label class="field-label">Workplace</label>
+        <input class="search-input" id="s-workplace" placeholder="e.g. Dhaka" type="text" oninput="filterCards()"/>
+      </div>
+    </div>
+    <button class="btn-search" onclick="filterCards()">🔍 Search</button>
+  </div>
+
+  <br/>
+  <button class="add-link" onclick="openModal()">+ Add Yourself</button>
+</header>
+
+<!-- MAIN -->
+<main>
+  <p class="section-label">Newest Additions</p>
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <div>Loading alumni data...</div>
+  </div>
+  <div class="cards-grid" id="cards-container"></div>
+  <div class="no-results" id="no-results">No alumni found. Be the first — click "Add Yourself"!</div>
+</main>
+
+<!-- FOOTER -->
+<footer>
+  Built by <a href="https://github.com/MuhammadMusa89" target="_blank">Muhammad Musa</a> · Syntax Error
+</footer>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <button class="close-btn" onclick="closeModal()">✕</button>
+    <p class="modal-title">Add Yourself</p>
+    <p class="modal-subtitle">Fill in your details to join the SAF alumni network</p>
+
+    <div class="form-two">
+      <div class="form-row">
+        <label class="form-label">Full Name *</label>
+        <input class="form-input" id="f-name" placeholder="Muhammad Musa" type="text"/>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Mobile Number</label>
+        <input class="form-input" id="f-mobile" placeholder="01XXXXXXXXX" type="tel"/>
+      </div>
+    </div>
+
+    <div class="form-two">
+      <div class="form-row">
+        <label class="form-label">Batch *</label>
+        <input class="form-input" id="f-batch" placeholder="e.g. 30" type="text"/>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Blood Group</label>
+        <select class="form-select" id="f-blood">
+          <option value="">Select</option>
+          <option>A+</option><option>A−</option>
+          <option>B+</option><option>B−</option>
+          <option>AB+</option><option>AB−</option>
+          <option>O+</option><option>O−</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-two">
+      <div class="form-row">
+        <label class="form-label">Role *</label>
+        <input class="form-input" id="f-role" placeholder="e.g. Analyst" type="text"/>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Organization</label>
+        <input class="form-input" id="f-org" placeholder="e.g. J.P. Morgan" type="text"/>
+      </div>
+    </div>
+
+    <div class="form-two">
+      <div class="form-row">
+        <label class="form-label">Facebook Profile URL</label>
+        <input class="form-input" id="f-facebook" placeholder="https://facebook.com/..." type="url"/>
+      </div>
+      <div class="form-row">
+        <label class="form-label">LinkedIn Profile URL</label>
+        <input class="form-input" id="f-linkedin" placeholder="https://linkedin.com/in/..." type="url"/>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Workplace Location</label>
+      <input class="form-input" id="f-workplace" placeholder="e.g. Dhaka" type="text"/>
+    </div>
+
+    <button class="btn-submit" id="submit-btn" onclick="submitForm()">✅ Submit</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ Successfully added!</div>
+
+<script>
+  const API_URL = 'https://script.google.com/macros/s/AKfycbzxplSV_3_nSq9VUDsXClxiWH6yG-XeNLw3LoF8KIbj_wzT6VSSKp4w_p-6YmcaSEcG-A/exec';
+
+  let allMembers = [];
+
+  function initials(name) {
+    const parts = name.trim().split(/\s+/);
+    if (parts.length === 1) return parts[0][0].toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+
+  const avatarColors = ['#1a3a6b','#2563eb','#7c3aed','#0891b2','#be123c','#b45309','#0f766e','#1a6b4a'];
+  function avatarColor(name) {
+    let h = 0;
+    for (let c of name) h = (h * 31 + c.charCodeAt(0)) & 0xffff;
+    return avatarColors[h % avatarColors.length];
+  }
+
+  async function loadMembers() {
+    try {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      allMembers = data.filter(m => m.name && m.name.trim() !== '');
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('total-count').textContent = allMembers.length;
+      renderCards(allMembers);
+    } catch (err) {
+      document.getElementById('loading').innerHTML = '<p style="color:#c0392b">Failed to load data. Please refresh.</p>';
+    }
+  }
+
+  function renderCards(members) {
+    const container = document.getElementById('cards-container');
+    const noResults = document.getElementById('no-results');
+    container.innerHTML = '';
+
+    if (members.length === 0) {
+      noResults.style.display = 'block';
+      return;
+    }
+    noResults.style.display = 'none';
+
+    [...members].reverse().forEach(m => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="card-top">
+          <div class="avatar" style="background:${avatarColor(m.name)}">${initials(m.name)}</div>
+          <div style="flex:1;min-width:0">
+            <div class="card-name">${m.name}</div>
+            ${m.mobile ? `<div class="card-batch">📞 ${m.mobile}</div>` : ''}
+          </div>
+          ${m.blood ? `<span class="blood-badge">🩸 ${m.blood}</span>` : ''}
+        </div>
+        ${m.role ? `<div class="card-role">💼 ${m.role}${m.organization ? ' · ' + m.organization : ''}</div>` : ''}
+        ${m.batch ? `<div class="card-org">🎓 Batch ${m.batch}</div>` : ''}
+        ${m.workplace ? `<div class="card-org">📍 ${m.workplace}</div>` : ''}
+        <hr class="card-divider"/>
+        <div class="card-actions">
+          ${m.mobile ? `<a class="btn-tag" href="tel:${m.mobile}">📞 Call</a>` : ''}
+          ${m.facebook ? `<a class="btn-tag fb-btn" href="${m.facebook}" target="_blank">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="#1877f2"><path d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.886v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"/></svg>
+            Facebook
+          </a>` : ''}
+          ${m.linkedin ? `<a class="btn-tag li-btn" href="${m.linkedin}" target="_blank">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="#0a66c2"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+            LinkedIn
+          </a>` : ''}
+        </div>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function filterCards() {
+    const name      = document.getElementById('s-name').value.toLowerCase().trim();
+    const batch     = document.getElementById('s-batch').value.toLowerCase().trim();
+    const role      = document.getElementById('s-role').value.toLowerCase().trim();
+    const org       = document.getElementById('s-org').value.toLowerCase().trim();
+    const blood     = document.getElementById('s-blood').value.toLowerCase().trim();
+    const workplace = document.getElementById('s-workplace').value.toLowerCase().trim();
+
+    const filtered = allMembers.filter(m =>
+      (!name      || m.name.toLowerCase().includes(name))
+   && (!batch     || (m.batch||'').toLowerCase().includes(batch))
+   && (!role      || (m.role||'').toLowerCase().includes(role))
+   && (!org       || (m.organization||'').toLowerCase().includes(org))
+   && (!blood     || (m.blood||'').toLowerCase().includes(blood))
+   && (!workplace || (m.workplace||'').toLowerCase().includes(workplace))
+    );
+
+    document.getElementById('total-count').textContent = allMembers.length;
+    renderCards(filtered);
+  }
+
+  function openModal()  { document.getElementById('overlay').classList.add('open'); }
+  function closeModal() { document.getElementById('overlay').classList.remove('open'); }
+  function overlayClick(e) { if (e.target === document.getElementById('overlay')) closeModal(); }
+
+  async function submitForm() {
+    const name      = document.getElementById('f-name').value.trim();
+    const mobile    = document.getElementById('f-mobile').value.trim();
+    const batch     = document.getElementById('f-batch').value.trim();
+    const blood     = document.getElementById('f-blood').value;
+    const role      = document.getElementById('f-role').value.trim();
+    const org       = document.getElementById('f-org').value.trim();
+    const facebook  = document.getElementById('f-facebook').value.trim();
+    const linkedin  = document.getElementById('f-linkedin').value.trim();
+    const workplace = document.getElementById('f-workplace').value.trim();
+
+    if (!name || !batch || !role) {
+      alert('Please fill in Name, Batch, and Role.');
+      return;
+    }
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Submitting...';
+
+    try {
+      await fetch(API_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, mobile, batch, role, organization: org, blood, facebook, linkedin, workplace })
+      });
+
+      closeModal();
+      showToast('✅ Successfully added to SAF Alumni!');
+
+      ['f-name','f-mobile','f-batch','f-blood','f-role','f-org','f-facebook','f-linkedin','f-workplace'].forEach(id => {
+        const el = document.getElementById(id);
+        el.tagName === 'SELECT' ? (el.selectedIndex = 0) : (el.value = '');
+      });
+
+      setTimeout(() => loadMembers(), 2000);
+    } catch (err) {
+      showToast('❌ Error. Please try again.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '✅ Submit';
+    }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3500);
+  }
+
+  loadMembers();
+</script>
+</body>
+</html>
